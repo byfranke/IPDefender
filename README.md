@@ -105,21 +105,6 @@ sudo IPDefender --list
 
 ## License 📄
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
 **Maintained by [Frank E](https://byfranke.com)** | [Report Issue](https://github.com/byfranke/IPDefender/issues)
 ```
 
-Key features of this README:
-1. Clear installation instructions with both quick install and source options
-2. Visual badges for quick project status overview
-3. Step-by-step AbuseIPDB configuration guide
-4. Command reference table for easy lookup
-5. Practical workflow example
-6. Responsive formatting for GitHub display
-7. License and maintenance information
-8. Direct links to account creation and issue reporting
-
-Would you like me to add any specific section or modify existing content?
