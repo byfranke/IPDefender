@@ -4,7 +4,6 @@ Advanced IP Management System with Threat Intelligence Integration | [byfranke.c
 
 ![Firewall Protection](https://img.shields.io/badge/Firewall-UFW%20%7C%20Fail2Ban-blue)
 ![Version](https://img.shields.io/badge/Version-2.1-green)
-![License](https://img.shields.io/badge/License-MIT-orange)
 
 ## Features ✨
 
