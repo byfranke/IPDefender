@@ -1,7 +1,6 @@
 # IPDefender 🔒
 
-Advanced IP Management System with Threat Intelligence Integration  
-*by [byfranke.com](https://byfranke.com)*
+Advanced IP Management System with Threat Intelligence Integration | [byfranke.com](https://byfranke.com)
 
 ![Firewall Protection](https://img.shields.io/badge/Firewall-UFW%20%7C%20Fail2Ban-blue)
 ![Version](https://img.shields.io/badge/Version-2.1-green)
