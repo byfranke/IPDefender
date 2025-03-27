@@ -106,5 +106,4 @@ sudo IPDefender --list
 ## License 📄
 
 **Maintained by [Frank E](https://byfranke.com)** | [Report Issue](https://github.com/byfranke/IPDefender/issues)
-```
 
