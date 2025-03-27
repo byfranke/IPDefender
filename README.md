@@ -1,6 +1,3 @@
-Here's a professional `README.md` for your GitHub repository:
-
-```markdown
 # IPDefender 🔒
 
 Advanced IP Management System with Threat Intelligence Integration  
