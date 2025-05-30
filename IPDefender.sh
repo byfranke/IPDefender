@@ -187,7 +187,7 @@ ban_list() {
   local invalid=0
 
   while IFS= read -r ip; do
-    # Remove leading/trailing whitespace (preserve internal formatting)
+
     ip=$(echo "$ip" | xargs)
     [[ -z "$ip" ]] && continue
     ((total++))
@@ -227,15 +227,12 @@ unban_ip() {
     return 1
   fi
 
-  # Remove from UFW
   while ufw status | grep -q "$ip"; do
     ufw delete deny from "$ip"
   done
   
-  # Remove from Fail2Ban
   fail2ban-client set "$FAIL2BAN_JAIL" unbanip "$ip" &>/dev/null
   
-  # Remove from tracking file
   sed -i "/^$ip$/d" "$BANNED_IPS_FILE"
   
   log_action "UNBAN $ip"
