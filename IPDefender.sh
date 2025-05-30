@@ -2,18 +2,20 @@
 
 # IPDefender - Intelligent IP Protection System
 # byfranke.com
-VERSION="2.1"
+VERSION="2.3"
 CONFIG_DIR="/etc/ipdefender"
 API_KEY_FILE="$CONFIG_DIR/abuseipdb.cfg"
 LOG_FILE="/var/log/ipdefender.log"
 FAIL2BAN_JAIL="sshd"
 REPO_URL="https://github.com/byfranke/IPDefender"
+BANNED_IPS_FILE="$CONFIG_DIR/banned_ips.list"
 
 usage() {
   echo "IPDefender v$VERSION - Comprehensive IP Protection Solution | byfranke.com"
   echo "Usage:"
   echo "  IPDefender --install-deps         Install dependencies"
   echo "  IPDefender --ban <IP> [reason]    Ban IP with threat intelligence"
+  echo "  IPDefender --ban-list <file>      Ban IPs from file (one per line)"
   echo "  IPDefender --check <IP>           Analyze IP reputation"
   echo "  IPDefender --unban <IP>           Remove IP ban"
   echo "  IPDefender --unban-all            Remove all bans"
@@ -40,9 +42,11 @@ update_script() {
   
   if [[ -f "$temp_dir/IPDefender.sh" ]]; then
     chmod +x "$temp_dir/IPDefender.sh"
-    cp "$temp_dir/IPDefender.sh" "/bin/IPDefender"
+    local install_path="/usr/local/bin/IPDefender"
+    cp "$temp_dir/IPDefender.sh" "$install_path"
     rm -rf "$temp_dir"
-    echo "Update successful! Restart your terminal."
+    echo "Update successful! Installed in $install_path"
+    echo "Restart your terminal or run 'hash -r' to use the new version"
     exit 0
   else
     echo "Error: Invalid update package"
@@ -54,8 +58,8 @@ update_script() {
 init_config() {
   mkdir -p "$CONFIG_DIR"
   chmod 0700 "$CONFIG_DIR"
-  touch "$API_KEY_FILE"
-  chmod 0600 "$API_KEY_FILE"
+  touch "$API_KEY_FILE" "$BANNED_IPS_FILE"
+  chmod 0600 "$API_KEY_FILE" "$BANNED_IPS_FILE"
 }
 
 store_api_key() {
@@ -75,19 +79,23 @@ check_root() {
 
 install_deps() {
   check_root
+  echo "Installing dependencies: ufw, fail2ban, curl, jq..."
+  
   if command -v apt-get >/dev/null; then
     apt-get update
-    apt-get install -y ufw fail2ban iptables curl jq
+    apt-get install -y ufw fail2ban iptables curl jq git
   elif command -v dnf >/dev/null; then
-    dnf install -y ufw fail2ban iptables curl jq
+    dnf install -y ufw fail2ban iptables curl jq git
+  elif command -v yum >/dev/null; then
+    yum install -y ufw fail2ban iptables curl jq git
   else
-    echo "Error: Install dependencies manually: ufw, fail2ban, curl, jq"
+    echo "Error: Install dependencies manually: ufw, fail2ban, curl, jq, git"
     exit 1
   fi
 
   systemctl enable --now ufw fail2ban
   ufw default deny incoming
-  ufw enable
+  ufw --force enable
   echo "Dependencies installed. Enabled UFW (default deny) + Fail2Ban"
 }
 
@@ -95,8 +103,20 @@ validate_ip() {
   local ip="$1"
   local octet="(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])"
   [[ $ip =~ ^$octet\.$octet\.$octet\.$octet$ ]] || {
-    echo "Error: Invalid IPv4: $ip"; exit 1
+    echo "Error: Invalid IPv4: $ip"; return 1
   }
+  return 0
+}
+
+is_ip_banned() {
+  local ip="$1"
+
+  ufw status | grep -q "DENY.*$ip" && return 0
+
+  fail2ban-client status "$FAIL2BAN_JAIL" | grep -q "$ip" && return 0
+
+  grep -q "^$ip$" "$BANNED_IPS_FILE" && return 0
+  return 1
 }
 
 log_action() {
@@ -137,23 +157,87 @@ ban_ip() {
   local ip="$1"
   local reason="${2:-Manual ban}"
   
-  if ! ufw status | grep -q "DENY.*$ip"; then
-    ufw insert 1 deny from "$ip" comment "IPDefender: $reason"
-    log_action "BAN $ip - Reason: $reason"
-    echo "Banned $ip successfully"
-  else
-    echo "$ip already in blocklist"
+  if ! validate_ip "$ip"; then
+    echo "Skipping invalid IP: $ip"
+    return 1
   fi
+
+  if is_ip_banned "$ip"; then
+    echo "$ip is already banned. Skipping."
+    return 0
+  fi
+
+  check_abuseipdb "$ip"
+  
+  ufw insert 1 deny from "$ip" comment "IPDefender: $reason"
+  echo "$ip" >> "$BANNED_IPS_FILE"
+  log_action "BAN $ip - Reason: $reason"
+  echo "Banned $ip successfully"
+}
+
+ban_list() {
+  local file="$1"
+  local reason="${2:-Bulk ban}"
+  
+  [[ ! -f "$file" ]] && { echo "Error: File not found: $file"; return 1; }
+  
+  local total=0
+  local banned=0
+  local skipped=0
+  local invalid=0
+
+  while IFS= read -r ip; do
+    # Remove leading/trailing whitespace (preserve internal formatting)
+    ip=$(echo "$ip" | xargs)
+    [[ -z "$ip" ]] && continue
+    ((total++))
+
+    if ! validate_ip "$ip"; then
+      echo "Invalid IP: $ip"
+      ((invalid++))
+      continue
+    fi
+
+    if is_ip_banned "$ip"; then
+      echo "$ip already banned. Skipping."
+      ((skipped++))
+      continue
+    fi
+
+    ufw insert 1 deny from "$ip" comment "IPDefender: $reason"
+    echo "$ip" >> "$BANNED_IPS_FILE"
+    log_action "BAN $ip - Reason: $reason (bulk)"
+    echo "Banned $ip"
+    ((banned++))
+  done < "$file"
+
+  echo "---------------------------------"
+  echo "Bulk ban summary:"
+  echo "Total IPs processed: $total"
+  echo "New bans: $banned"
+  echo "Skipped (already banned): $skipped"
+  echo "Invalid IPs: $invalid"
+  echo "---------------------------------"
 }
 
 unban_ip() {
   local ip="$1"
   
+  if ! validate_ip "$ip"; then
+    return 1
+  fi
+
+  # Remove from UFW
   while ufw status | grep -q "$ip"; do
     ufw delete deny from "$ip"
   done
   
+  # Remove from Fail2Ban
   fail2ban-client set "$FAIL2BAN_JAIL" unbanip "$ip" &>/dev/null
+  
+  # Remove from tracking file
+  sed -i "/^$ip$/d" "$BANNED_IPS_FILE"
+  
   log_action "UNBAN $ip"
   echo "Removed bans for $ip"
 }
@@ -172,6 +256,7 @@ unban_all() {
     fail2ban-client set "$FAIL2BAN_JAIL" unbanip "$ip" &>/dev/null
   done
   
+  > "$BANNED_IPS_FILE" 
   log_action "UNBAN_ALL - Removed $(wc -l <<< "$banned_ips") bans"
   echo "All IP bans cleared"
 }
@@ -182,6 +267,9 @@ list_bans() {
   
   echo -e "\nFail2Ban Active Blocks ($FAIL2BAN_JAIL):"
   fail2ban-client get "$FAIL2BAN_JAIL" banned | sed "s/'//g; s/\[//g; s/\]//g; s/,/\n/g" | awk '{print " - " $1}'
+  
+  echo -e "\nTracked Banned IPs:"
+  [[ -s "$BANNED_IPS_FILE" ]] && cat "$BANNED_IPS_FILE" | awk '{print " - " $1}' || echo " (none)"
 }
 
 check_root
@@ -193,18 +281,18 @@ case "$1" in
     
   --ban)
     [[ -z "$2" ]] && usage
-    validate_ip "$2"
-    check_abuseipdb "$2"
     ban_ip "$2" "${3:-}" ;;
+    
+  --ban-list)
+    [[ -z "$2" ]] && { echo "Error: File path required"; usage; }
+    ban_list "$2" "${3:-}" ;;
     
   --check)
     [[ -z "$2" ]] && usage
-    validate_ip "$2"
-    check_abuseipdb "$2" ;;
+    validate_ip "$2" && check_abuseipdb "$2" ;;
     
   --unban)
     [[ -z "$2" ]] && usage
-    validate_ip "$2"
     unban_ip "$2" ;;
     
   --unban-all)
