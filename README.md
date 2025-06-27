@@ -137,8 +137,7 @@ sudo IPDefender --list
 
 **Maintained by [Frank E](https://byfranke.com)** | [Report Issue](https://github.com/byfranke/IPDefender/issues)
 
-![Screenshot 2025-06-27 at 17 25 01](https://github.com/user-attachments/assets/4d3c7700-3f56-49ae-b5c3-112bc472c9ca)
-
+![Screenshot 2025-06-27 at 17 31 50](https://github.com/user-attachments/assets/288ad9ca-26bb-489f-b25c-8bfb350f6d92)
 
 ## Donation Support
 
