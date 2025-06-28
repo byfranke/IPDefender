@@ -1,11 +1,11 @@
-# IPDefender 🔒
+# IPDefender
 
 Advanced IP Management System with Threat Intelligence Integration | [byfranke.com](https://byfranke.com)
 
 ![Firewall Protection](https://img.shields.io/badge/Firewall-UFW%20%7C%20Fail2Ban-blue)
 ![Version](https://img.shields.io/badge/Version-2.3-green)
 
-## Features ✨
+## Features
 
 - Real-time IP threat analysis via **AbuseIPDB**
 - Dual firewall management (**UFW** + **Fail2Ban**)
@@ -16,7 +16,7 @@ Advanced IP Management System with Threat Intelligence Integration | [byfranke.c
 - One-click mass unban
 - **New in v2.3**: Threat intelligence report before banning IPs
 
-## Installation 🚀
+## Installation
 
 ### Quick Install
 ```bash
@@ -32,7 +32,7 @@ chmod +x IPDefender.sh
 sudo mv IPDefender.sh /usr/local/bin/IPDefender
 ```
 
-## Configuration ⚙️
+## Configuration
 
 ### 1. Install Dependencies
 ```bash
@@ -47,7 +47,7 @@ sudo IPDefender --install-deps
 sudo IPDefender --api-abuseipdb YOUR_API_KEY
 ```
 
-## Usage 📖
+## Usage
 
 ### Basic Commands
 ```bash
@@ -82,7 +82,7 @@ sudo IPDefender --update
 | `--version`              | Show current version                                  |
 | `--help`                 | Display help menu                                     |
 
-## Example Workflow 🔄
+## Example Workflow
 
 ```bash
 # Install and configure
@@ -103,7 +103,7 @@ sudo IPDefender --update
 sudo IPDefender --list
 ```
 
-## Key Improvements in v2.3 🚀
+## Key Improvements in v2.3
 
 1. **Threat Intelligence Before Banning**  
    - Automatic AbuseIPDB report when using `--ban`
@@ -126,14 +126,14 @@ sudo IPDefender --list
    - Added YUM package manager (RHEL/CentOS)
    - Improved distro compatibility checks
 
-## Requirements 📦
+## Requirements
 
 - Linux (Debian/RedHat based distributions)
 - Root privileges
 - curl, jq, git
 - UFW & Fail2Ban
 
-## License 📄
+## License
 
 **Maintained by [Frank E](https://byfranke.com)** | [Report Issue](https://github.com/byfranke/IPDefender/issues)
 
