@@ -1,0 +1,43 @@
+{
+  "sample_ips": [
+    {
+      "ip": "192.0.2.1",
+      "reason": "Malicious activity detected",
+      "timestamp": "2023-10-01T12:00:00Z"
+    },
+    {
+      "ip": "203.0.113.5",
+      "reason": "Brute force attack",
+      "timestamp": "2023-10-02T14:30:00Z"
+    },
+    {
+      "ip": "198.51.100.10",
+      "reason": "Spamming detected",
+      "timestamp": "2023-10-03T09:15:00Z"
+    }
+  ],
+  "threat_intel_sources": [
+    {
+      "source": "OTX",
+      "threats": [
+        {
+          "ip": "192.0.2.1",
+          "threat_level": "high"
+        },
+        {
+          "ip": "203.0.113.5",
+          "threat_level": "medium"
+        }
+      ]
+    },
+    {
+      "source": "MISP",
+      "threats": [
+        {
+          "ip": "198.51.100.10",
+          "threat_level": "low"
+        }
+      ]
+    }
+  ]
+}

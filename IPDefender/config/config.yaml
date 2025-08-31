@@ -1,0 +1,329 @@
+# IPDefender Pro Configuration
+# Advanced Cybersecurity Defense Platform
+# Author: byFranke (https://byfranke.com)
+
+# Application Settings
+application:
+  name: "IPDefender Pro"
+  version: "1.0.0"
+  author: "byFranke"
+  website: "https://byfranke.com"
+  debug: false
+  log_level: "INFO"
+
+# Threat Intelligence Configuration
+threat_intelligence:
+  # Cache settings
+  cache_ttl: 3600  # 1 hour in seconds
+  
+  # AbuseIPDB Configuration
+  abuseipdb_api_key: ""  # Your AbuseIPDB API key
+  
+  # AlienVault OTX Configuration  
+  otx_api_key: ""  # Your OTX API key
+  
+  # MISP Configuration (if available)
+  misp_url: ""
+  misp_api_key: ""
+  misp_verify_ssl: true
+  
+  # VirusTotal Configuration (if available)
+  virustotal_api_key: ""
+  
+  # Custom threat feeds
+  custom_feeds:
+    enabled: false
+    feeds: []
+
+# Response Engine Configuration
+response_engine:
+  # Whitelist - IPs that should never be blocked
+  whitelist:
+    - "127.0.0.1"
+    - "::1"
+    - "10.0.0.0/8"
+    - "172.16.0.0/12"
+    - "192.168.0.0/16"
+  
+  # Firewall providers configuration
+  providers:
+    # UFW Configuration
+    ufw:
+      enabled: true
+      
+    # Cloudflare Configuration
+    cloudflare:
+      enabled: false
+      api_token: ""  # Your Cloudflare API token
+      zone_id: ""    # Your Cloudflare Zone ID
+    
+    # Fail2ban Configuration (future)
+    fail2ban:
+      enabled: false
+      
+    # pfSense Configuration (future)
+    pfsense:
+      enabled: false
+  
+  # Custom response rules
+  response_rules:
+    - name: "Botnet Communication Block"
+      description: "Block confirmed botnet communication"
+      conditions:
+        categories:
+          contains: ["botnet"]
+        confidence:
+          min: 80
+      action: "perm_block"
+      priority: 95
+      firewall_providers: ["cloudflare", "ufw"]
+      notification_channels: ["email", "slack"]
+      
+    - name: "Scanning Activity Rate Limit"
+      description: "Rate limit port scanning"
+      conditions:
+        categories:
+          contains: ["scanning"]
+        threat_score:
+          min: 40
+          max: 70
+      action: "rate_limit"
+      priority: 60
+      duration: 1800  # 30 minutes
+      firewall_providers: ["cloudflare"]
+
+# API Server Configuration
+api:
+  enabled: true
+  host: "0.0.0.0"
+  port: 8080
+  
+  # CORS settings
+  cors_origins:
+    - "http://localhost:3000"
+    - "http://localhost:8080"
+  
+  # API Authentication
+  api_keys:
+    # Add your API keys here for authentication
+    # - "your-secret-api-key-here"
+  
+  # Rate limiting
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 60
+
+# Wazuh SIEM Integration
+wazuh:
+  enabled: false
+  url: "https://localhost:55000"
+  username: "wazuh"
+  password: ""
+  verify_ssl: true
+  
+  # Alert monitoring settings
+  alert_monitoring:
+    enabled: true
+    check_interval: 60  # seconds
+    min_level: 7  # Minimum alert level to process
+    
+  # Active response settings
+  active_response:
+    enabled: true
+    default_duration: 3600  # 1 hour for temporary blocks
+
+# Splunk Integration (future)
+splunk:
+  enabled: false
+  url: ""
+  token: ""
+  index: "ipdefender"
+
+# ELK Stack Integration (future)
+elasticsearch:
+  enabled: false
+  hosts: []
+  username: ""
+  password: ""
+  index: "ipdefender-logs"
+
+# Notification Configuration
+notifications:
+  # Email notifications
+  email:
+    enabled: false
+    smtp_server: ""
+    smtp_port: 587
+    smtp_security: "starttls"  # none, starttls, ssl
+    username: ""
+    password: ""
+    from_email: ""
+    to_emails: []
+    
+  # Slack notifications
+  slack:
+    enabled: false
+    webhook_url: ""
+    channel: "#security"
+    username: "IPDefender Pro"
+    
+  # Discord notifications
+  discord:
+    enabled: false
+    webhook_url: ""
+    
+  # Webhook notifications
+  webhook:
+    enabled: false
+    url: ""
+    headers: {}
+    
+  # SMS notifications (future)
+  sms:
+    enabled: false
+    provider: "twilio"  # twilio, aws_sns
+    api_key: ""
+    from_number: ""
+    to_numbers: []
+
+# Database Configuration
+database:
+  # For now using in-memory storage
+  # Future versions will support persistent storage
+  type: "memory"  # memory, sqlite, postgresql, mysql
+  
+  # SQLite configuration (future)
+  sqlite:
+    path: "/var/lib/ipdefender/ipdefender.db"
+    
+  # PostgreSQL configuration (future)
+  postgresql:
+    host: "localhost"
+    port: 5432
+    database: "ipdefender"
+    username: ""
+    password: ""
+    
+  # Redis configuration for caching (future)
+  redis:
+    enabled: false
+    host: "localhost"
+    port: 6379
+    password: ""
+    db: 0
+
+# Logging Configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  
+  # File logging
+  file:
+    enabled: true
+    path: "/var/log/ipdefender/ipdefender-pro.log"
+    max_size_mb: 100
+    backup_count: 5
+    rotation: "time"  # size, time
+    
+  # Syslog
+  syslog:
+    enabled: false
+    facility: "local0"
+    
+  # JSON logging for structured logs
+  json_format: false
+  
+  # Log to external systems
+  external:
+    # ELK Stack
+    elasticsearch:
+      enabled: false
+      host: ""
+      index: "ipdefender-logs"
+      
+    # Splunk
+    splunk:
+      enabled: false
+      host: ""
+      port: 8088
+      token: ""
+
+# Security Configuration
+security:
+  # Encryption settings
+  encryption:
+    enabled: true
+    algorithm: "AES-256-GCM"
+    key_rotation_days: 90
+    
+  # API security
+  api_security:
+    require_https: false  # Set to true in production
+    jwt_secret: ""  # JWT secret for session management
+    session_timeout: 3600  # 1 hour
+    
+  # System security
+  system:
+    drop_privileges: true
+    user: "ipdefender"
+    group: "ipdefender"
+
+# Performance Configuration
+performance:
+  # Threading and async settings
+  max_workers: 10
+  connection_pool_size: 20
+  request_timeout: 30
+  
+  # Memory settings
+  max_memory_mb: 1024
+  cache_max_entries: 10000
+  
+  # Processing limits
+  max_ips_per_request: 100
+  max_concurrent_analyses: 50
+
+# Monitoring and Metrics
+monitoring:
+  # Prometheus metrics
+  prometheus:
+    enabled: false
+    port: 9090
+    path: "/metrics"
+    
+  # Health check endpoint
+  health_check:
+    enabled: true
+    path: "/health"
+    
+  # Statistics
+  statistics:
+    enabled: true
+    interval: 300  # 5 minutes
+    retention_days: 30
+
+# Development Configuration
+development:
+  # Enable development features
+  dev_mode: false
+  
+  # Mock external services
+  mock_services: false
+  
+  # Profiling
+  profiling:
+    enabled: false
+    output_dir: "/tmp/ipdefender-profiles"
+
+# Backup and Recovery
+backup:
+  enabled: false
+  interval: 86400  # Daily
+  retention_days: 30
+  destination: "/var/backups/ipdefender"
+  
+  # Cloud backup (future)
+  cloud:
+    enabled: false
+    provider: "aws_s3"  # aws_s3, azure_blob, gcp_storage
+    bucket: ""
+    credentials: {}

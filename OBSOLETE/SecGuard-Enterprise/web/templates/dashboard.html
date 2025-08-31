@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecGuard Enterprise - Dashboard</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-content">
+                <h1>SecGuard Enterprise</h1>
+                <div class="header-status">
+                    <span class="status-indicator" id="connection-status">●</span>
+                    <span id="last-update">Conectando...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard -->
+        <main class="dashboard-main">
+            <!-- System Health Cards -->
+            <section class="health-cards">
+                <div class="card cpu-card">
+                    <div class="card-header">
+                        <h3>CPU</h3>
+                        <span class="card-value" id="cpu-usage">--</span>
+                    </div>
+                    <div class="card-chart">
+                        <canvas id="cpu-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card memory-card">
+                    <div class="card-header">
+                        <h3>Memória</h3>
+                        <span class="card-value" id="memory-usage">--</span>
+                    </div>
+                    <div class="card-chart">
+                        <canvas id="memory-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card disk-card">
+                    <div class="card-header">
+                        <h3>Disco</h3>
+                        <span class="card-value" id="disk-usage">--</span>
+                    </div>
+                    <div class="card-chart">
+                        <canvas id="disk-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card security-card">
+                    <div class="card-header">
+                        <h3>Status Segurança</h3>
+                        <span class="card-status" id="security-status">--</span>
+                    </div>
+                    <div class="security-indicators">
+                        <div class="indicator">
+                            <span class="indicator-label">UFW:</span>
+                            <span class="indicator-status" id="ufw-status">--</span>
+                        </div>
+                        <div class="indicator">
+                            <span class="indicator-label">Fail2Ban:</span>
+                            <span class="indicator-status" id="fail2ban-status">--</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Threat Detection Section -->
+            <section class="threats-section">
+                <div class="section-header">
+                    <h2>Detecção de Ameaças</h2>
+                    <div class="section-controls">
+                        <button class="refresh-btn" onclick="refreshData()">Atualizar</button>
+                    </div>
+                </div>
+                
+                <div class="threats-content">
+                    <div class="threats-summary">
+                        <div class="summary-card">
+                            <h4>Total de Scans</h4>
+                            <span class="summary-value" id="total-scans">0</span>
+                        </div>
+                        <div class="summary-card">
+                            <h4>Ameaças Detectadas</h4>
+                            <span class="summary-value threat-count" id="threats-detected">0</span>
+                        </div>
+                        <div class="summary-card">
+                            <h4>IPs Banidos</h4>
+                            <span class="summary-value" id="banned-ips">0</span>
+                        </div>
+                        <div class="summary-card">
+                            <h4>Jobs Agendados</h4>
+                            <span class="summary-value" id="scheduled-jobs">0</span>
+                        </div>
+                    </div>
+
+                    <div class="threats-charts">
+                        <div class="chart-container">
+                            <h4>Tipos de Ameaças</h4>
+                            <canvas id="threats-type-chart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h4>Países - IPs Banidos</h4>
+                            <canvas id="banned-countries-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Activities -->
+            <section class="activities-section">
+                <div class="section-header">
+                    <h2>Atividades Recentes</h2>
+                </div>
+                
+                <div class="activities-content">
+                    <div class="activity-log" id="activity-log">
+                        <div class="log-entry">Carregando atividades...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Jobs Schedule Status -->
+            <section class="jobs-section">
+                <div class="section-header">
+                    <h2>Jobs Agendados</h2>
+                </div>
+                
+                <div class="jobs-content">
+                    <div class="jobs-table-container">
+                        <table class="jobs-table" id="jobs-table">
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Frequência</th>
+                                    <th>Status</th>
+                                    <th>Próxima Execução</th>
+                                    <th>Última Execução</th>
+                                </tr>
+                            </thead>
+                            <tbody id="jobs-table-body">
+                                <tr>
+                                    <td colspan="5">Carregando jobs...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

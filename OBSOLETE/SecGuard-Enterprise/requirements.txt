@@ -1,0 +1,13 @@
+# SecGuard Enterprise - Python Dependencies
+# ========================================
+
+# Core dependencies
+psutil>=5.8.0          # System and process utilities
+aiohttp>=3.8.0         # Async HTTP client for API calls
+keyring>=23.0.0        # Secure credential storage
+jinja2>=3.0.0          # Template engine for reports
+croniter>=1.0.0        # Cron expression parsing
+
+# Additional utilities
+python-dateutil>=2.8.0 # Enhanced date handling
+setuptools>=60.0.0     # Package management utilities

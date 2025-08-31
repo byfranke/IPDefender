@@ -1,0 +1,12 @@
+requests
+pytest
+pytest-cov
+mypy
+black
+flake8
+pre-commit
+pydocstyle
+bandit
+safety
+python-dotenv
+```

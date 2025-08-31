@@ -1,0 +1,126 @@
+# IPDefender Rules Configuration v2.0
+
+# Detection Rules for different attack types
+detection_rules:
+  
+  # SSH Brute Force Detection
+  ssh_brute_force:
+    name: "SSH Brute Force Attack"
+    description: "Detect SSH brute force attempts"
+    enabled: true
+    severity: "high"
+    wazuh_rules:
+      - "5710"  # SSH authentication failure
+      - "5712"  # SSH login attempt
+    threshold: 5
+    time_window: 300  # 5 minutes
+    action: "block"
+    firewall_providers: ["ufw", "fail2ban", "cloudflare"]
+    threat_validation: "low"
+    block_duration: 3600  # 1 hour
+    
+  # Web Attack Detection
+  web_attack:
+    name: "Web Application Attack"
+    description: "Detect web application attacks"
+    enabled: true
+    severity: "critical"
+    wazuh_rules:
+      - "31101"  # Web attack
+      - "31103"  # SQL injection
+      - "31104"  # XSS attack
+      - "31105"  # Path traversal
+    threshold: 1
+    time_window: 60
+    action: "block"
+    firewall_providers: ["cloudflare", "ufw"]
+    threat_validation: "medium"
+    block_duration: 7200  # 2 hours
+    
+  # Port Scan Detection
+  port_scan:
+    name: "Port Scan Detection"
+    description: "Detect port scanning activities"
+    enabled: true
+    severity: "medium"
+    wazuh_rules:
+      - "40101"  # Port scan
+      - "40102"  # Multiple port scan
+    threshold: 10
+    time_window: 300
+    action: "block"
+    firewall_providers: ["ufw", "fail2ban"]
+    threat_validation: "low"
+    block_duration: 1800  # 30 minutes
+
+# Legacy rules for backward compatibility
+rules:
+  - id: "block_ip"
+    description: "Block IP addresses based on threat intelligence"
+    conditions:
+      - source: "OTX"
+        severity: "high"
+      - source: "MISP"
+        severity: "critical"
+      - source: "Wazuh"
+        alert_type: "suspicious"
+    actions:
+      - type: "block"
+        target: "ip"
+        duration: "permanent"
+  - id: "temporary_block_ip"
+    description: "Temporarily block IP addresses based on low severity threats"
+    conditions:
+      - source: "OTX"
+        severity: "low"
+      - source: "Wazuh"
+        alert_type: "info"
+    actions:
+      - type: "block"
+        target: "ip"
+        duration: "72 hours"
+  - id: "unblock_ip"
+    description: "Unblock IP addresses after threat assessment"
+    conditions:
+      - source: "Wazuh"
+        alert_type: "resolved"
+    actions:
+      - type: "unblock"
+        target: "ip"
+
+# Threat Intelligence Rules
+threat_intel_rules:
+  
+  # High confidence threats from AbuseIPDB
+  abuseipdb_high_confidence:
+    name: "AbuseIPDB High Confidence Threats"
+    description: "Block IPs with high confidence from AbuseIPDB"
+    enabled: true
+    source: "abuseipdb"
+    confidence_threshold: 85
+    categories:
+      - 4   # DDoS Attack
+      - 15  # Hacking
+      - 18  # Brute-Force
+      - 20  # Exploited Host
+      - 21  # Web App Attack
+    action: "block"
+    firewall_providers: ["cloudflare", "ufw"]
+    auto_sync: true
+    sync_interval: 3600  # 1 hour
+
+# Whitelist Rules
+whitelist_rules:
+  
+  # Internal networks
+  internal_networks:
+    name: "Internal Networks"
+    description: "Always allow internal networks"
+    enabled: true
+    priority: 100  # Highest priority
+    networks:
+      - "10.0.0.0/8"
+      - "172.16.0.0/12"
+      - "192.168.0.0/16"
+      - "127.0.0.0/8"
+      - "::1/128"

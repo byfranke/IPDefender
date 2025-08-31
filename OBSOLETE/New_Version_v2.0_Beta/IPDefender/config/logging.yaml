@@ -1,0 +1,26 @@
+logging:
+  version: 1
+  disable_existing_loggers: false
+  formatters:
+    simple:
+      format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    detailed:
+      format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s - %(filename)s:%(lineno)d'
+  handlers:
+    console:
+      class: logging.StreamHandler
+      formatter: simple
+      level: INFO
+    file:
+      class: logging.FileHandler
+      filename: 'ip_defender.log'
+      formatter: detailed
+      level: DEBUG
+  loggers:
+    ip_defender:
+      level: DEBUG
+      handlers: [console, file]
+      propagate: no
+  root:
+    level: WARNING
+    handlers: [console]

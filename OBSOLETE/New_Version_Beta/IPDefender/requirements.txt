@@ -1,0 +1,51 @@
+# IPDefender 2.0 Requirements
+
+# Core dependencies
+requests>=2.31.0
+pyyaml>=6.0.1
+click>=8.1.7
+python-dotenv>=1.0.0
+jinja2>=3.1.2
+
+# Database
+sqlalchemy>=2.0.23
+alembic>=1.12.1
+
+# Web framework
+flask>=2.3.3
+flask-restful>=0.3.10
+flask-cors>=4.0.0
+flask-limiter>=3.5.0
+gunicorn>=21.2.0
+
+# Security
+cryptography>=41.0.7
+bcrypt>=4.1.2
+pyjwt>=2.8.0
+
+# Networking and validation
+validators>=0.22.0
+dnspython>=2.4.2
+
+# Scheduling and async
+apscheduler>=3.10.4
+
+# Logging and monitoring
+structlog>=23.2.0
+prometheus-client>=0.19.0
+
+# External integrations
+wazuh-api>=4.7.0
+otx-python>=1.5.12
+misp-python>=2.4.168
+
+# Database alternatives
+# MongoDB support
+pymongo>=4.6.0
+
+# Optional: PostgreSQL support
+# psycopg2-binary>=2.9.9
+
+# Optional: MySQL support  
+# pymysql>=1.1.0
+```

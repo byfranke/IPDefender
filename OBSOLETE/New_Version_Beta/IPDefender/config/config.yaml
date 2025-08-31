@@ -1,0 +1,214 @@
+# filepath: /IPDefender/IPDefender/config/config.yaml
+# IPDefender Configuration v2.0
+app:
+  name: "IPDefender"
+  version: "2.0.0"
+  debug: false
+  log_level: "INFO"
+
+# Database Configuration
+database:
+  engine: "sqlite"  # sqlite, postgresql, mysql
+  host: "localhost"
+  port: 5432
+  name: "ipdefender.db"
+  user: ""
+  password: ""
+  pool_size: 10
+  
+# Web Interface Configuration
+web:
+  enabled: true
+  host: "0.0.0.0"
+  port: 8080
+  secret_key: "your-secret-key-here"
+  cors_enabled: true
+  auth_enabled: true
+
+# Firewall Providers Configuration
+firewall:
+  # Cloudflare Configuration
+  cloudflare:
+    enabled: true
+    api_token: ""  # Your Cloudflare API token
+    zone_id: ""    # Your Cloudflare Zone ID
+    timeout: 10
+    
+  # UFW (Uncomplicated Firewall) Configuration
+  ufw:
+    enabled: true
+    auto_enable: false  # Auto-enable UFW if not active
+    default_comment: "Blocked by IPDefender"
+    
+  # Fail2ban Configuration
+  fail2ban:
+    enabled: true
+    default_jail: "ipdefender"
+    create_jail_if_missing: true
+    jail_config:
+      maxretry: 3
+      bantime: 3600
+      findtime: 600
+
+# Threat Intelligence Configuration
+threat_intel:
+  # AbuseIPDB Configuration
+  abuseipdb:
+    enabled: true
+    api_key: ""  # Your AbuseIPDB API key
+    confidence_threshold: 75
+    max_age_days: 90
+    auto_sync: true
+    sync_interval: 3600  # seconds
+    
+  # AlienVault OTX Configuration
+  otx:
+    enabled: false
+    api_key: ""
+    
+  # MISP Configuration
+  misp:
+    enabled: false
+    url: ""
+    api_key: ""
+    verify_ssl: true
+
+# SIEM Integration Configuration
+siem:
+  # Wazuh Configuration
+  wazuh:
+    enabled: true
+    api_url: ""
+    api_user: ""
+    api_password: ""
+    verify_ssl: true
+    rules:
+      - rule_id: "5710"  # SSH authentication failure
+        action: "block"
+        threshold: 5
+        window: 300
+      - rule_id: "31101" # Web attack
+        action: "block"
+        threshold: 1
+        window: 60
+
+# Automation Rules
+automation:
+  # Auto-blocking rules
+  auto_block:
+    enabled: true
+    threat_validation: "medium"  # none, low, medium, high, strict
+    providers: ["cloudflare", "ufw"]  # Which firewall providers to use
+    
+  # Whitelist Configuration
+  whitelist:
+    enabled: true
+    ips:
+      - "127.0.0.1"
+      - "::1"
+    networks:
+      - "192.168.0.0/16"
+      - "10.0.0.0/8"
+      - "172.16.0.0/12"
+    
+  # Scheduled tasks
+  scheduled_tasks:
+    - name: "threat_intel_sync"
+      enabled: true
+      schedule: "0 */6 * * *"  # Every 6 hours
+      action: "sync_with_threat_intel"
+      params:
+        confidence_threshold: 80
+        max_ips: 5000
+        
+    - name: "cleanup_old_blocks"
+      enabled: true
+      schedule: "0 2 * * *"  # Daily at 2 AM
+      action: "cleanup_expired_blocks"
+      params:
+        max_age_days: 30
+
+# API Configuration
+api:
+  enabled: true
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 60
+  authentication:
+    enabled: true
+    api_keys: []  # List of valid API keys
+    
+# Notification Configuration
+notifications:
+  # Email notifications
+  email:
+    enabled: false
+    smtp_server: ""
+    smtp_port: 587
+    username: ""
+    password: ""
+    from_email: ""
+    to_emails: []
+    
+  # Slack notifications  
+  slack:
+    enabled: false
+    webhook_url: ""
+    channel: "#security"
+    
+  # Discord notifications
+  discord:
+    enabled: false
+    webhook_url: ""
+
+# Monitoring and Metrics
+monitoring:
+  enabled: true
+  metrics_retention_days: 90
+  
+  # Prometheus metrics
+  prometheus:
+    enabled: false
+    port: 9090
+    
+  # Health checks
+  health_checks:
+    enabled: true
+    interval: 60  # seconds
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # File logging
+  file:
+    enabled: true
+    path: "/var/log/ipdefender/app.log"
+    max_size_mb: 100
+    backup_count: 5
+    
+  # Syslog
+  syslog:
+    enabled: false
+    facility: "local0"
+    
+  # Remote logging
+  remote:
+    enabled: false
+    endpoint: ""
+
+ip_management:
+  block_duration: 3600  # Duration in seconds for which an IP should be blocked
+  max_blocked_ips: 1000  # Maximum number of IPs that can be blocked at a time
+
+logging:
+  level: "INFO"
+  file: "logs/ip_defender.log"
+
+scheduler:
+  check_interval: 300  # Interval in seconds for checking new threats
+
+community:
+  enable_sharing: true  # Enable sharing of blocked IPs with the community
+  sharing_service_url: "https://community.example.com/api/blocked_ips"
