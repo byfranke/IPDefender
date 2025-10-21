@@ -5,7 +5,7 @@
 VERSION="2.3"
 CONFIG_DIR="/etc/ipdefender"
 API_KEY_FILE="$CONFIG_DIR/abuseipdb.cfg"
-LOG_FILE="/var/log/ipdefender.log"
+LOG_FILE="/var/log/ipdefender/ipdefender.log"
 FAIL2BAN_JAIL="sshd"
 REPO_URL="https://github.com/byfranke/IPDefender"
 BANNED_IPS_FILE="$CONFIG_DIR/banned_ips.list"
