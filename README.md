@@ -20,16 +20,12 @@ Advanced IP Management System with Threat Intelligence Integration | [byfranke.c
 
 ### Quick Install
 ```bash
-sudo curl -L https://raw.githubusercontent.com/byfranke/IPDefender/main/IPDefender.sh -o /usr/local/bin/IPDefender
-sudo chmod +x /usr/local/bin/IPDefender
-```
-
-### From Source
-```bash
-git clone https://github.com/byfranke/IPDefender.git
+sudo su
+cd /etc
+git clone https://github.com/byfranke/IPDefender
 cd IPDefender
 chmod +x IPDefender.sh
-sudo mv IPDefender.sh /usr/local/bin/IPDefender
+sudo mv IPDefender.sh IPDefender
 ```
 
 ## Configuration
